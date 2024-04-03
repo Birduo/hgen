@@ -4,16 +4,14 @@ import Parsing
 
 
 -- stmt ::= header | comment | inline | bulleted | numbered | code | text
-stmt = do header
-    <|> do comment
-    <|> do inline
-    <|> do bulleted
-    <|> do numbered
-    <|> do code
+stmt = header
+    <|> comment
+    <|> bulletedList
+    <|> numberedList
     <|> text
 
 createHeaderTag :: String -> String -> String
-createHeaderTag x y = "<h" ++ x ++ ">" ++ y ++ "</h" ++ x ++ ">"
+createHeaderTag x y = "<h" ++ x ++ ">" ++ y ++ "</h" ++ x ++ ">\n"
 
 -- header ::= "#"* " " text
 header = do
@@ -25,50 +23,53 @@ header = do
 comment = do
     string "//"
     x <- text
-    return ("<!-- " ++ x ++ " -->")
+    return ("<!-- " ++ x ++ " -->\n")
 
--- inline ::= "\`" text "\`" 
-inline = do
-    char '`'
-    x <- text
-    char '`'
-    return x
+-- wrap the text in a <ul> tag
+-- bulletedList ::= bulleted*
+bulletedList :: Parser String
+bulletedList = do
+    items <- some bulleted
+    return ("<ul>\n" ++ concat items ++ "</ul>")
 
 -- bulleted ::= "*" text | "+" text | "-" text
 bulleted = do
     char '*'
     char ' '
-    text
+    y <- many (sat (/= '\n'))
+    return ("<li>" ++ y ++ "</li>\n")
     <|> do
     char '+'
     char ' '
-    text
+    y <- many (sat (/= '\n'))
+    return ("<li>" ++ y ++ "</li>\n")
     <|> do
     char '-'
     char ' '
-    text
+    y <- many (sat (/= '\n'))
+    return ("<li>" ++ y ++ "</li>\n")
+
+-- numberedList ::= numbered*
+numberedList :: Parser String
+numberedList = do
+    items <- some numbered
+    return ("<ol>\n" ++ concat items ++ "</ol>\n")
 
 -- numbered ::= [0-9]+ "." text
+numbered :: Parser String
 numbered = do
     x <- many digit
     char '.'
     y <- text
-    return (x ++ "." ++ y)
+    return ("<li>" ++ y ++ "</li>\n")
 
--- code ::= "\`\`\`" text "\`\`\`
-code = do
-    string "```"
-    x <- text
-    string "```"
-    return x
-
+-- todo: add inline formatting for code, bold, and italics
 -- text ::= char* "\n"*
 text :: Parser String
-text = do many (sat (/= '\n'))
+text = many (sat (/= '\n'))
 
 baseHtml :: String -> String
 baseHtml text = "<html>\n<head>\n</head>\n<body>\n" ++ text ++ "\n</body>\n</html>"
-
 
 parseString :: String -> [String]
 parseString str =
