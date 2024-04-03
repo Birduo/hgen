@@ -1,81 +1,57 @@
 import System.Environment
 import Data.Char
-import Parsing
+import Text.Parsec
+import Text.Parsec.String (Parser)
 
 
--- stmt ::= header | comment | inline | bulleted | numbered | code | text
-stmt = header
-    <|> comment
-    <|> bulletedList
-    <|> numberedList
+-- stmt ::= header | comment | text
+stmt :: Parser String
+stmt = try header
+    <|> try comment
     <|> text
 
 createHeaderTag :: String -> String -> String
 createHeaderTag x y = "<h" ++ x ++ ">" ++ y ++ "</h" ++ x ++ ">\n"
 
 -- header ::= "#"* " " text
+header :: Parser String
 header = do
     x <- many (char '#')
-    char ' '
+    _ <- char ' '
     createHeaderTag (show (length x)) <$> text
 
 -- comment ::= "//" text 
+comment :: Parser String
 comment = do
-    string "//"
+    _ <- string "//"
     x <- text
     return ("<!-- " ++ x ++ " -->\n")
 
--- wrap the text in a <ul> tag
--- bulletedList ::= bulleted*
-bulletedList :: Parser String
-bulletedList = do
-    items <- some bulleted
-    return ("<ul>\n" ++ concat items ++ "</ul>")
+bold :: Parser String
+bold = do
+    _ <- try (string "**") <|> try (string "__")
+    content <- many (noneOf "*_")
+    _ <- try (string "**") <|> try (string "__")
+    return ("<b>" ++ content ++ "</b>")
 
--- bulleted ::= "*" text | "+" text | "-" text
-bulleted = do
-    char '*'
-    char ' '
-    y <- many (sat (/= '\n'))
-    return ("<li>" ++ y ++ "</li>\n")
-    <|> do
-    char '+'
-    char ' '
-    y <- many (sat (/= '\n'))
-    return ("<li>" ++ y ++ "</li>\n")
-    <|> do
-    char '-'
-    char ' '
-    y <- many (sat (/= '\n'))
-    return ("<li>" ++ y ++ "</li>\n")
+italic :: Parser String
+italic = do
+    _ <- try (char '*') <|> try (char '_')
+    content <- many (noneOf "*_")
+    _ <- try (char '*') <|> try (char '_')
+    return ("<i>" ++ content ++ "</i>")
 
--- numberedList ::= numbered*
-numberedList :: Parser String
-numberedList = do
-    items <- some numbered
-    return ("<ol>\n" ++ concat items ++ "</ol>\n")
-
--- numbered ::= [0-9]+ "." text
-numbered :: Parser String
-numbered = do
-    x <- many digit
-    char '.'
-    y <- text
-    return ("<li>" ++ y ++ "</li>\n")
-
--- todo: add inline formatting for code, bold, and italics
--- text ::= char* "\n"*
 text :: Parser String
-text = many (sat (/= '\n'))
+text = concat <$> manyTill (try bold <|> fmap return (noneOf "\n")) newline
 
 baseHtml :: String -> String
 baseHtml text = "<html>\n<head>\n</head>\n<body>\n" ++ text ++ "\n</body>\n</html>"
 
 parseString :: String -> [String]
 parseString str =
-    case parse (sepBy stmt (char '\n')) str of
-        [] -> error "Parse error: empty input"
-        ((parsed, _):_) -> parsed
+    case parse (stmt `sepBy` newline) "" str of
+        Left err -> ["Error: " ++ show err]
+        Right stmts -> stmts
 
 
 parseFile :: FilePath -> IO [String]
