@@ -1,5 +1,11 @@
 module HtmlBindings where
 
+codeTag :: String -> String
+codeTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
+
+liTag :: String -> String
+liTag x = "<li>" ++ x ++ "</li>\n"
+
 ulTag :: String -> String
 ulTag x = "<ul>\n" ++ x ++ "</ul>\n"
 

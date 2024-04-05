@@ -11,6 +11,11 @@ Headers can go until H6 (######) and only active if first non-whitespace char in
 1. Numbered list
 2. Because we can
 
+```
+# Code block
+print("Hello World")
+```
+
 **Bold Text**
 *Italic Text*
 // comment block (must start with //)

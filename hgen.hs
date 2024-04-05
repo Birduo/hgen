@@ -5,35 +5,13 @@ import HtmlBindings
 
 -- markdown ::= stmt* eof
 markdown :: Parser [String]
-markdown = do
-    -- put list here to make sure that the parser will not stop at the first newline
-    try expr `endBy` newline 
-    <* eof
+markdown = endBy (try expr) newline <* eof
 
 -- expr :: list | stmt
 expr :: Parser String
-expr = try list <|> try stmt
+expr = try list <|> try codeBlock <|> try stmt
 
--- stmt ::= comment | header | list | paragraph
-stmt :: Parser String
-stmt = try comment
-    <|> try header
-    <|> try text
-    <|> return ""
-
-comment :: Parser String
-comment = do
-    string "// "
-    contents <- many text
-    return $ commentTag (concat contents)
-
-header :: Parser String
-header = do
-    hashs <- many1 $ char '#'
-    many1 space
-    contents <- many text
-    return $ hTag (length hashs) (concat contents)
-
+-- list ::= ul | ol
 list :: Parser String
 list = do
     contents <- many1 $ try ulItem
@@ -42,14 +20,16 @@ list = do
     contents <- many1 $ try olItem
     return $ olTag $ concat contents
 
+-- ulItem ::= '-' text newline
 ulItem :: Parser String
 ulItem = do
     char '-'
     spaces
     contents <- text
     newline
-    return $ "<li>" ++ contents ++ "</li>\n"
+    return $ liTag contents
 
+-- olItem ::= digit+ '.' text newline
 olItem :: Parser String
 olItem = do
     many1 digit
@@ -57,22 +37,55 @@ olItem = do
     spaces
     contents <- text
     newline
-    return $ "<li>" ++ contents ++ "</li>\n"
+    return $ liTag contents
 
+-- codeBlock ::= "```" (text newline)* "```"
+codeBlock :: Parser String
+codeBlock = do
+    string "```"
+    contents <- manyTill anyChar (try $ string "```")
+    return $ codeTag contents
 
-paragraph :: Parser String
-paragraph = pTag <$> text
+-- stmt ::= comment | header | list | paragraph
+stmt :: Parser String
+stmt = try comment
+    <|> try header
+    <|> try text
+    <|> return "" -- fail case
 
+-- comment ::= "//" text
+comment :: Parser String
+comment = do
+    string "// "
+    contents <- many text
+    return $ commentTag (concat contents)
+
+-- header ::= '#'+ text
+header :: Parser String
+header = do
+    hashs <- many1 $ char '#'
+    many1 space
+    contents <- many text
+    return $ hTag (length hashs) (concat contents)
+
+-- common text parsing
+-- will have italics and bold later
 text :: Parser String
 text = many1 $ noneOf "\n"
 
+-- convert input string to indent-formatted html
+parseMarkdown :: String -> String
+parseMarkdown input = case parse markdown "Error !" input of
+    Left err -> "Parsing error: " ++ show err
+    Right html -> baseHtml $ concat html
+
+-- driving io: read args and output html accordingly
 main :: IO ()
 main = do
     args <- getArgs
     let fileName = head args
     let outputFileName = head $ tail args
     file <- readFile fileName
-    let result = parse markdown "Error !" file
-    case result of
-        Left err -> putStrLn $ "Parsing error: " ++ show err
-        Right html -> writeFile outputFileName $ concat html
+
+    let html = parseMarkdown file
+    writeFile outputFileName html
