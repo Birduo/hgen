@@ -16,6 +16,10 @@ Headers can go until H6 (######) and only active if first non-whitespace char in
 print("Hello World")
 ```
 
+
+[Google](https://www.google.com)
+
 **Bold Text**
 *Italic Text*
-// comment block (must start with //)
+
+// comment block ends with

@@ -1,7 +1,10 @@
 module HtmlBindings where
 
-codeTag :: String -> String
-codeTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
+codeBlockTag :: String -> String
+codeBlockTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
+
+inlineCodeTag :: String -> String
+inlineCodeTag contents = "<code>" ++ contents ++ "</code>"
 
 liTag :: String -> String
 liTag x = "<li>" ++ x ++ "</li>\n"
@@ -26,6 +29,9 @@ boldTag x = "<b>" ++ x ++ "</b>"
 
 italicTag :: String -> String
 italicTag x = "<i>" ++ x ++ "</i>"
+
+linkTag :: String -> String -> String
+linkTag x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
 
 baseHtml :: String -> String
 baseHtml text = "<!doctype html>\n<html>\n<head>\n</head>\n<body>\n" ++ text ++ "</body>\n</html>"

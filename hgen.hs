@@ -44,34 +44,62 @@ codeBlock :: Parser String
 codeBlock = do
     string "```"
     contents <- manyTill anyChar (try $ string "```")
-    return $ codeTag contents
+    return $ codeBlockTag contents
 
 -- stmt ::= comment | header | list | paragraph
 stmt :: Parser String
 stmt = try comment
     <|> try header
-    <|> try text
-    <|> return "" -- fail case
+    <|> try inline
+    <|> return "<br>\n" -- if no match, return <br> and consume a newline
 
 -- comment ::= "//" text
 comment :: Parser String
 comment = do
     string "// "
-    contents <- many text
-    return $ commentTag (concat contents)
+    contents <- manyTill anyChar (try $ lookAhead newline)
+    return $ commentTag contents
 
 -- header ::= '#'+ text
 header :: Parser String
 header = do
     hashs <- many1 $ char '#'
     many1 space
-    contents <- many text
+    contents <- many1 text
     return $ hTag (length hashs) (concat contents)
 
+inline :: Parser String
+inline = try bold
+    <|> try italic
+    <|> try link
+    <|> text
+
+bold :: Parser String
+bold = do
+    string "**"
+    contents <- manyTill text (try $ string "**")
+    return $ boldTag $ concat contents
+
+italic :: Parser String
+italic = do
+    string "*"
+    contents <- manyTill text (try $ string "*")
+    return $ italicTag $ concat contents
+
+link :: Parser String
+link = do
+    string "["
+    contents <- manyTill anyChar (try $ lookAhead $ string "](")
+    string "]("
+    url <- manyTill anyChar (try $ string ")")
+    return $ linkTag contents url
+
 -- common text parsing
--- will have italics and bold later
 text :: Parser String
-text = many1 $ noneOf "\n"
+text = do
+    first <- noneOf "*[_\n"
+    rest <- manyTill (noneOf "*[_\n") (try $ lookAhead $ oneOf "*[_\n")
+    return (first:rest)
 
 -- convert input string to indent-formatted html
 parseMarkdown :: String -> String
@@ -87,5 +115,5 @@ main = do
     let outputFileName = head $ tail args
     file <- readFile fileName
 
-    let html = parseMarkdown file
+    let html = parseMarkdown $ file ++ "\n" -- append w/ newline just incase
     writeFile outputFileName html
