@@ -2,10 +2,12 @@ import System.Environment
 import Text.ParserCombinators.Parsec
 import Text.Parsec (endBy, eof)
 import HtmlBindings
+import Debug.Trace (trace)
 
 -- markdown ::= stmt* eof
 markdown :: Parser [String]
-markdown = endBy (try expr) newline <* eof
+-- markdown = sepEndBy (try expr) newline <* eof
+markdown = manyTill expr eof
 
 -- expr :: list | stmt
 expr :: Parser String
@@ -48,7 +50,7 @@ codeBlock = do
 
 -- stmt ::= comment | header | inline | newline
 stmt :: Parser String
-stmt = try comment
+stmt = try comment 
     <|> try header
     <|> try inline
     <|> return "<br>\n" -- if no match, return <br> and consume a newline
@@ -57,7 +59,7 @@ stmt = try comment
 comment :: Parser String
 comment = do
     string "// "
-    contents <- manyTill anyChar (try $ lookAhead newline)
+    contents <- manyTill anyChar newline
     return $ commentTag contents
 
 -- header ::= '#'+ text
@@ -66,12 +68,14 @@ header = do
     hashs <- many1 $ char '#'
     many1 space
     contents <- many1 text
+    newline
     return $ hTag (length hashs) (concat contents)
 
 inline :: Parser String
 inline = try bold
     <|> try italic
     <|> try link
+    <|> try inlineCode
     <|> text
 
 bold :: Parser String
@@ -94,12 +98,16 @@ link = do
     url <- manyTill anyChar (try $ string ")")
     return $ linkTag contents url
 
+-- inlineCode ::= "`" text "`"
+inlineCode :: Parser String
+inlineCode = do
+    char '`'
+    contents <- manyTill anyChar (try $ char '`')
+    return $ inlineCodeTag contents
+
 -- common text parsing
 text :: Parser String
-text = do
-    first <- noneOf "*[_\n"
-    rest <- manyTill (noneOf "*[_\n") (try $ lookAhead $ oneOf "*[_\n")
-    return (first:rest)
+text = many1 (noneOf "*[_`\n")
 
 -- convert input string to indent-formatted html
 parseMarkdown :: String -> String
