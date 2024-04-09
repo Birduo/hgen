@@ -53,7 +53,9 @@ stmt :: Parser String
 stmt = try comment 
     <|> try header
     <|> try inline
-    <|> return "<br>\n" -- if no match, return <br> and consume a newline
+    <|> do 
+        newline
+        return "<br>\n" -- if no match, return <br> and consume a newline
 
 -- comment ::= "//" text
 comment :: Parser String

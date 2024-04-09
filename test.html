@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css"></head>
+<body>
+<h1>L-Systems</h1>
+<br>
+L-systems, or Lindenmayer systems, are a way of simulating bacteria, plant, and fractal growth. <br>
+This is done using recursive string rewriting and a way to render strings to a 2D or 3D space, which can be used to create multiple general rulesets.<br>
+<br>
+Recursive string rewriting is used in L-systems to generate the "growth" of the preferred organism. <br>
+This is done using a set of rules that are applied to modify a given string recursively. <br>
+Consider the following L-system: <br>
+<pre><code>
+A -> AB
+B -> A
+</code></pre>
+<br>
+Given a "seed" string of "A" at generation <code>n = 0</code>, the above rules would generate a string of "AB" at generation <code>n = 1</code>.<br>
+Following this context, here are some further generations.<br>
+<pre><code>
+0: A
+1: AB
+2: ABA
+3: ABAAB
+4: ABAAABA
+</code></pre>
+<br>
+Note how this is done on the whole string, and not just the end portion of the string.<br>
+<br>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/L-system">Wikipedia</a></li>
+<li><a href="https://jsantell.com/l-systems/">Jordan Santell</a></li>
+</ul>
+<br>
+</body>
+</html>
