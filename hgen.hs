@@ -25,7 +25,7 @@ ulItem :: Parser String
 ulItem = do
     char '-'
     spaces
-    contents <- text
+    contents <- inline
     newline
     return $ liTag contents
 
@@ -35,7 +35,7 @@ olItem = do
     many1 digit
     char '.'
     spaces
-    contents <- text
+    contents <- inline
     newline
     return $ liTag contents
 
@@ -46,7 +46,7 @@ codeBlock = do
     contents <- manyTill anyChar (try $ string "```")
     return $ codeBlockTag contents
 
--- stmt ::= comment | header | list | paragraph
+-- stmt ::= comment | header | inline | newline
 stmt :: Parser String
 stmt = try comment
     <|> try header
@@ -105,15 +105,23 @@ text = do
 parseMarkdown :: String -> String
 parseMarkdown input = case parse markdown "Error !" input of
     Left err -> "Parsing error: " ++ show err
-    Right html -> baseHtml $ concat html
+    Right html -> concat html
 
 -- driving io: read args and output html accordingly
+-- usage: hgen <input.md> <output.html> [header.html]
 main :: IO ()
 main = do
     args <- getArgs
     let fileName = head args
-    let outputFileName = head $ tail args
+    let outputFileName = args !! 1
     file <- readFile fileName
 
     let html = parseMarkdown $ file ++ "\n" -- append w/ newline just incase
-    writeFile outputFileName html
+
+    -- Check if a third argument is provided
+    if length args > 2 then do
+        let headerFileName = args !! 2
+        header <- readFile headerFileName
+        writeFile outputFileName $ baseHtmlFile header html
+    else
+        writeFile outputFileName $ baseHtml html

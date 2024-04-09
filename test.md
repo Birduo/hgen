@@ -1,25 +1,26 @@
-# Glass Test
-## H2
+# L-Systems
 
-### H3
+L-systems, or Lindenmayer systems, are a way of simulating bacteria, plant, and fractal growth. 
+This is done using recursive string rewriting and a way to render strings to a 2D or 3D space, which can be used to create multiple general rulesets.
 
-Headers can go until H6 (######) and only active if first non-whitespace char in line
-
-- Bulleted list
-- Testline
-
-1. Numbered list
-2. Because we can
-
+Recursive string rewriting is used in L-systems to generate the "growth" of the preferred organism. 
+This is done using a set of rules that are applied to modify a given string recursively. 
+Consider the following L-system: 
 ```
-# Code block
-print("Hello World")
+A -> AB
+B -> A
 ```
+Given a "seed" string of "A" at generation `n = 0`, the above rules would generate a string of "AB" at generation `n = 1`.
+Following this context, here are some further generations.
+```
+0: A
+1: AB
+2: ABA
+3: ABAAB
+4: ABAAABA
+```
+Note how this is done on the whole string, and not just the end portion of the string.
 
-
-[Google](https://www.google.com)
-
-**Bold Text**
-*Italic Text*
-
-// comment block ends with
+### Sources
+- [Wikipedia](https://en.wikipedia.org/wiki/L-system)
+- [Jordan Santell](https://jsantell.com/l-systems/)

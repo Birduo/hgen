@@ -33,5 +33,11 @@ italicTag x = "<i>" ++ x ++ "</i>"
 linkTag :: String -> String -> String
 linkTag x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
 
+
+-- creates boilerplate html
 baseHtml :: String -> String
 baseHtml text = "<!doctype html>\n<html>\n<head>\n</head>\n<body>\n" ++ text ++ "</body>\n</html>"
+
+-- uses a file for boilerplate html
+baseHtmlFile :: String -> String -> String
+baseHtmlFile file text = "<!doctype html>\n<html>\n<head>\n" ++ file ++ "</head>\n<body>\n" ++ text ++ "</body>\n</html>"

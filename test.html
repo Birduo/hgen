@@ -1,31 +1,27 @@
 <!doctype html>
 <html>
 <head>
-</head>
+<link rel="stylesheet" href="styles.css"></head>
 <body>
-<h1>Glass Test</h1>
-<h2>H2</h2>
+<h1>L-Systems</h1>
 <br>
-<h3>H3</h3>
-<br>
-Headers can go until H6 (######) and only active if first non-whitespace char in line<br>
-<ul>
-<li>Bulleted list</li>
-<li>Testline</li>
-</ul>
-<ol>
-<li>Numbered list</li>
-<li>Because we can</li>
-</ol>
-<pre><code>
-# Code block
-print("Hello World")
+L-systems, or Lindenmayer systems, are a way of simulating bacteria, plant, and fractal growth. This is done using recursive string rewriting and a way to render strings to a 2D or 3D space, which can be used to create multiple general rulesets.<br>
+Recursive string rewriting is used in L-systems to generate the "growth" of the preferred organism. This is done using a set of rules that are applied to modify a given string recursively. Consider the following L-system: <pre><code>
+A -> AB
+B -> A
 </code></pre>
-<br>
-<br>
-<a href="https://www.google.com">Google</a><br>
-<b>Bold Text</b><i>Italic Text</i><br>
-<!-- comment block ends with -->
-<br>
+Given a "seed" string of "A" at generation `n = 0`, the above rules would generate a string of "AB" at generation `n = 1`.Following this context, here are some further generations.<pre><code>
+0: A
+1: AB
+2: ABA
+3: ABAAB
+4: ABAAABA
+</code></pre>
+Note how this is done on the whole string, and not just the end portion of the string.<br>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/L-system">Wikipedia</a></li>
+<li><a href="https://jsantell.com/l-systems/">Jordan Santell</a></li>
+</ul>
 </body>
 </html>
