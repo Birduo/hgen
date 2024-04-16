@@ -3,8 +3,17 @@ module HtmlBindings where
 codeBlockTag :: String -> String
 codeBlockTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
 
+scriptBlockTag :: String -> String
+scriptBlockTag x = "<script>" ++ x ++ "</script>"
+
 inlineCodeTag :: String -> String
 inlineCodeTag contents = "<code>" ++ contents ++ "</code>"
+
+scriptLinkTag :: String -> String
+scriptLinkTag url = "<script src=\"" ++ url ++ "\"></script>"
+
+cssTag :: String -> String
+cssTag url = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" ++ url ++ "\">"
 
 liTag :: String -> String
 liTag x = "<li>" ++ x ++ "</li>\n"

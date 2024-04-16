@@ -11,15 +11,13 @@ This is done using recursive string rewriting and a way to render strings to a 2
 Recursive string rewriting is used in L-systems to generate the "growth" of the preferred organism. <br>
 This is done using a set of rules that are applied to modify a given string recursively. <br>
 Consider the following L-system: <br>
-<pre><code>
-A -> AB
+<pre><code>A -> AB
 B -> A
 </code></pre>
 <br>
 Given a "seed" string of "A" at generation <code>n = 0</code>, the above rules would generate a string of "AB" at generation <code>n = 1</code>.<br>
 Following this context, here are some further generations.<br>
-<pre><code>
-0: A
+<pre><code>0: A
 1: AB
 2: ABA
 3: ABAAB
@@ -32,7 +30,19 @@ Note how this is done on the whole string, and not just the end portion of the s
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/L-system">Wikipedia</a></li>
 <li><a href="https://jsantell.com/l-systems/">Jordan Santell</a></li>
+<li><a href="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js">p5.min.js</a><script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script></li>
 </ul>
+<br>
+<pre><code>function setup() {
+    createCanvas(400, 400);
+    background(255);
+}
+</code></pre>
+<script>function setup() {
+    createCanvas(400, 400);
+    background(255);
+}
+</script><br>
 <br>
 </body>
 </html>

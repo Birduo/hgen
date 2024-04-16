@@ -3,6 +3,7 @@ import Text.ParserCombinators.Parsec
 import Text.Parsec (endBy, eof)
 import HtmlBindings
 import Debug.Trace (trace)
+import Data.List (isSuffixOf)
 
 -- markdown ::= stmt* eof
 markdown :: Parser [String]
@@ -45,8 +46,13 @@ olItem = do
 codeBlock :: Parser String
 codeBlock = do
     string "```"
+    language <- try $ manyTill anyChar newline <|> return ""
     contents <- manyTill anyChar (try $ string "```")
-    return $ codeBlockTag contents
+    return $ case language of
+        "js" -> scriptBlockTag contents
+        "javascript" -> codeBlockTag contents ++ scriptBlockTag contents
+        "" -> codeBlockTag contents
+        _ -> codeBlockTag contents
 
 -- stmt ::= comment | header | inline | newline
 stmt :: Parser String
@@ -92,13 +98,20 @@ italic = do
     contents <- manyTill text (try $ string "*")
     return $ italicTag $ concat contents
 
+-- linkFileType checks the file type of a link (css, js, py, html)
+fileType :: String -> String
+fileType = reverse . takeWhile (/= '.') . reverse
+
 link :: Parser String
 link = do
     string "["
     contents <- manyTill anyChar (try $ lookAhead $ string "](")
     string "]("
     url <- manyTill anyChar (try $ string ")")
-    return $ linkTag contents url
+    return $ case fileType url of
+        "css" -> cssTag url
+        "js" -> linkTag contents url ++ scriptLinkTag url
+        _ -> linkTag contents url
 
 -- inlineCode ::= "`" text "`"
 inlineCode :: Parser String
