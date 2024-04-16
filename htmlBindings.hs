@@ -1,7 +1,7 @@
 module HtmlBindings where
 
 codeBlockTag :: String -> String
-codeBlockTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
+codeBlockTag x = "<pre><code class=\"nohighlight\">" ++ x ++ "</code></pre>\n"
 
 highlightCodeTag :: String -> String -> String
 highlightCodeTag language x = "<pre><code class=\"" ++ "language-" ++ language ++ "\">" ++ x ++ "</code></pre>\n"

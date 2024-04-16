@@ -7,31 +7,17 @@ Recursive string rewriting is used in L-systems to generate the "growth" of the 
 This is done using a set of rules that are applied to modify a given string recursively. 
 Consider the following L-system: 
 ```
-A -> AB
-B -> A
+F -> F, F+F-F-F+F, F-F+F+F-F, FF+[+F-F-F]-[-F+F+F], F[+F]F[-F]F, FF-[-F+F+F]+[+F-F-F]
 ```
-Given a "seed" string of "A" at generation `n = 0`, the above rules would generate a string of "AB" at generation `n = 1`.
-Following this context, here are some further generations.
-```
-0: A
-1: AB
-2: ABA
-3: ABAAB
-4: ABAAABA
-```
+This ruleset is used to generate a plant-like structure in 2D space.
+
 Note how this is done on the whole string, and not just the end portion of the string.
+
+::lsystem
 
 ### Sources
 - [Wikipedia](https://en.wikipedia.org/wiki/L-system)
 - [Jordan Santell](https://jsantell.com/l-systems/)
 - [p5.min.js](https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js)
+- [lsystems.js](/simulation/lsystems.js)
 
-```javascript
-function setup() {
-    let canvas = createCanvas(400, 400);
-    canvas.parent("canvas");
-    background(255);
-}
-```
-
-::canvas
