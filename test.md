@@ -28,7 +28,10 @@ Note how this is done on the whole string, and not just the end portion of the s
 
 ```javascript
 function setup() {
-    createCanvas(400, 400);
+    let canvas = createCanvas(400, 400);
+    canvas.parent("canvas");
     background(255);
 }
 ```
+
+::canvas

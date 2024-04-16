@@ -50,7 +50,7 @@ codeBlock = do
     contents <- manyTill anyChar (try $ string "```")
     return $ case language of
         "js" -> scriptBlockTag contents
-        "javascript" -> codeBlockTag contents ++ scriptBlockTag contents
+        "javascript" -> highlightCodeTag "javascript" contents ++ scriptBlockTag contents
         "" -> codeBlockTag contents
         _ -> codeBlockTag contents
 
@@ -58,6 +58,7 @@ codeBlock = do
 stmt :: Parser String
 stmt = try comment 
     <|> try header
+    <|> try emptyDiv
     <|> try inline
     <|> do 
         newline
@@ -78,6 +79,14 @@ header = do
     contents <- many1 text
     newline
     return $ hTag (length hashs) (concat contents)
+
+-- emptyDiv ::= "::" id
+emptyDiv :: Parser String
+emptyDiv = do
+    string "::"
+    id <- many1 (noneOf " \n")
+    return $ emptyDivTag id
+
 
 inline :: Parser String
 inline = try bold

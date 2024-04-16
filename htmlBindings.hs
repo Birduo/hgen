@@ -3,6 +3,9 @@ module HtmlBindings where
 codeBlockTag :: String -> String
 codeBlockTag x = "<pre><code>" ++ x ++ "</code></pre>\n"
 
+highlightCodeTag :: String -> String -> String
+highlightCodeTag language x = "<pre><code class=\"" ++ "language-" ++ language ++ "\">" ++ x ++ "</code></pre>\n"
+
 scriptBlockTag :: String -> String
 scriptBlockTag x = "<script>" ++ x ++ "</script>"
 
@@ -42,6 +45,8 @@ italicTag x = "<i>" ++ x ++ "</i>"
 linkTag :: String -> String -> String
 linkTag x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
 
+emptyDivTag :: String -> String
+emptyDivTag id = "<div id=\"" ++ id ++ "\"></div>"
 
 -- creates boilerplate html
 baseHtml :: String -> String
