@@ -15,6 +15,8 @@ Note how this is done on the whole string, and not just the end portion of the s
 
 ::lsystem
 
+![Google Logo](https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png)
+
 ### Sources
 - [Wikipedia](https://en.wikipedia.org/wiki/L-system)
 - [Jordan Santell](https://jsantell.com/l-systems/)

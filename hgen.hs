@@ -91,6 +91,7 @@ emptyDiv = do
 inline :: Parser String
 inline = try bold
     <|> try italic
+    <|> try img
     <|> try link
     <|> try inlineCode
     <|> text
@@ -106,6 +107,13 @@ italic = do
     string "*"
     contents <- manyTill text (try $ string "*")
     return $ italicTag $ concat contents
+
+img :: Parser String
+img = do
+    string "!["
+    alt <- manyTill anyChar (try $ string "](")
+    url <- manyTill anyChar (try $ string ")")
+    return $ imgTag url alt
 
 -- linkFileType checks the file type of a link (css, js, py, html)
 fileType :: String -> String

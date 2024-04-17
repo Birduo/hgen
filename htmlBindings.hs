@@ -45,6 +45,9 @@ italicTag x = "<i>" ++ x ++ "</i>"
 linkTag :: String -> String -> String
 linkTag x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
 
+imgTag :: String -> String -> String
+imgTag url alt = "<img src=\"" ++ url ++ "\" alt=\"" ++ alt ++ "\">"
+
 emptyDivTag :: String -> String
 emptyDivTag id = "<div id=\"" ++ id ++ "\"></div>"
 
