@@ -52,7 +52,7 @@ codeBlock = do
         "js" -> scriptBlockTag contents
         "javascript" -> highlightCodeTag "javascript" contents ++ scriptBlockTag contents
         "" -> codeBlockTag contents
-        _ -> codeBlockTag contents
+        x -> highlightCodeTag x contents
 
 -- stmt ::= comment | header | inline | newline
 stmt :: Parser String
