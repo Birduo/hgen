@@ -3,33 +3,60 @@
 <head>
 <link rel="stylesheet" href="styles.css"></head>
 <body>
-<h1>L-Systems</h1>
-<br>
-L-systems, or Lindenmayer systems, are a way of simulating bacteria, plant, and fractal growth. <br>
-This is done using recursive string rewriting and a way to render strings to a 2D or 3D space, which can be used to create multiple general rulesets.<br>
-<br>
-Recursive string rewriting is used in L-systems to generate the "growth" of the preferred organism. <br>
-This is done using a set of rules that are applied to modify a given string recursively. <br>
-Consider the following L-system: <br>
-<pre><code class="nohighlight">F -> F, F+F-F-F+F, F-F+F+F-F, FF+[+F-F-F]-[-F+F+F], F[+F]F[-F]F, FF-[-F+F+F]+[+F-F-F]
+<h1>qs8 - Python Statevector Simulator</h1>
+<br>qs8 is a quantum statevector simulator built in Python for small-scale projects. It was mostly an exercise in my own abilities in how the domains of linear algebra and quantum computing overlap, and only uses the <code>numpy</code> module as its core dependency.<br><br>In the future, I might adapt this project to JS for browser-based quantum simulation projects.<br><br><h2>How does it work?</h2>
+Quantum circuits are organized as a list of gates, where each entry is a timestep column. Index 0 is <code>t0</code>, index 1 is <code>t1</code>, etc. You can interpret the circuit by using matrix multiplication to evolve the statevector column by column, or build the entire circuit into a single unitary to then execute in one step. The single-stepping feature of this makes it easier to debug and figure out problems with state. <br><br>Pre-made gates include <code>H</code>, <code>X</code>, <code>Y</code>, <code>Z</code>, <code>CX</code>, <code>CXl</code>, and <code>SWP</code>. <code>CX</code> and<code>CXl</code> are the standard and <code>l</code>ower version of the <code>CNOT</code> gate. Custom gates can be created as numpy arrays as seen in the current implementation of <code>qs8.py</code>:<br><pre><code class="language-python"># this has the first qb listed as control
+CX = np.asarray([[1, 0, 0, 0],
+                 [0, 0, 0, 1],
+                 [0, 0, 1, 0],
+                 [0, 1, 0, 0]])
 </code></pre>
-<br>
-This ruleset is used to generate a plant-like structure in 2D space.<br>
-<br>
-Note how this is done on the whole string, and not just the end portion of the string.<br>
-<br>
-<div id="lsystem"></div><br>
-<br>
-<img src="https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png" alt="Google Logo"><br>
-<br>
-<h3>Sources</h3>
+<br>The core stipulation of this project is that there is currently <b>no</b> sugar on the multi-qubit operations. This means that qubits must be directly next to each other for a multi-qubit operation to take place.<br><br>For an example, let's create a circuit that initializes a GHZ state between 4 qubits.<br><pre><code class="language-python">from qs8 import *
+qb = 4
+# creating a circuit w/ 4 qubits
+qc = QCirc(qb)
+</code></pre>
+<br>After creating the quantum circuit with the associated amount of wires, or qubits, let's set the first couple of gates to test with.<br><pre><code class="language-python"># setting the gate on q0 in column 0 to X
+qc.set_gate(X, [0], 0)
+# setting the gate on q0 in column 1 to H
+qc.set_gate(H, [0], 1)
+</code></pre>
+<br>The X gate runs a NOT on qubit 0, or <code>q0</code>, in column 0, and the H runs a Hadamard on <code>q0</code> in column 1. Notice that the affected qubits are input as a list.<br><pre><code class="language-python"># create CX gates linking from q0 to qb-1 (q3)
+for i in range(qb - 1):
+    qc.set_gate(CX, [i, i + 1], i + 2)
+</code></pre>
+<br>Now we use a for loop to add CX gates between <code>q(i)</code> and <code>q(i+1)</code><br><pre><code class="language-python"># builds and runs circuit
+qc.run_circuit(build=True)
+
+# getting a dictionary of counts
+counts = qc.get_counts(10000)
+
+# print the circuit and counts
+print(str(qc))
+print(counts)
+</code></pre>
+<br>After the circuit is created, you can build the unitary while running by setting <code>build=True</code>. Additionally, you can interpret the circuit column by column by running <code>qc.interpret_circuit()</code> instead. You can get a dictionary of n shots by using the <code>get_counts</code> function on this circuit. Finally, the circuit has a <code>__str__</code> method that prints the circuit in a readable format.<br>The output after running this script can be seen below:<br><br><pre><code class="nohighlight">q0 X-H-CX----
+       |
+q1 ----o-CX--
+         |
+q2 ------o-CX
+           |
+q3 --------o-
+
+{'15': 4986, '0': 5014}
+</code></pre>
+<br><h3>Sources</h3>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/L-system">Wikipedia</a></li>
-<li><a href="https://jsantell.com/l-systems/">Jordan Santell</a></li>
+<li><a href="https://github.com/Birduo/qs8">qs8</a></li>
 <li><a href="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js">p5.min.js</a><script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script></li>
-<li><a href="/simulation/lsystems.js">lsystems.js</a><script src="/simulation/lsystems.js"></script></li>
 </ul>
-<br>
-<br>
-</body>
+<!-- - [math.js](https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js) -->
+<br><h3>Navigation</h3>
+<ul>
+<li><a href="/README.md">Home</a></li>
+<li><a href="/quantum">Quantum</a></li>
+<li><a href="/simulation">Simulation</a></li>
+</ul>
+<br><script>document.title = "qs8"
+</script><br><br></body>
 </html>

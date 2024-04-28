@@ -1,55 +1,77 @@
 module HtmlBindings where
 
-codeBlockTag :: String -> String
-codeBlockTag x = "<pre><code class=\"nohighlight\">" ++ x ++ "</code></pre>\n"
+codeBlockTag :: String -> String -> String
+codeBlockTag "html" x = "<pre><code class=\"nohighlight\">" ++ x ++ "</code></pre>\n"
+codeBlockTag plat x = "<pre><code class=\"nohighlight\">" ++ x ++ "</code></pre>\n"
 
-highlightCodeTag :: String -> String -> String
-highlightCodeTag language x = "<pre><code class=\"" ++ "language-" ++ language ++ "\">" ++ x ++ "</code></pre>\n"
+highlightCodeTag :: String -> String -> String -> String
+highlightCodeTag "html" language x = "<pre><code class=\"" ++ "language-" ++ language ++ "\">" ++ x ++ "</code></pre>\n"
+highlightCodeTag plat language x = "<pre><code class=\"" ++ "language-" ++ language ++ "\">" ++ x ++ "</code></pre>\n"
 
-scriptBlockTag :: String -> String
-scriptBlockTag x = "<script>" ++ x ++ "</script>"
+scriptBlockTag :: String -> String -> String
+scriptBlockTag "html" x = "<script>" ++ x ++ "</script>"
+scriptBlockTag plat x = "<script>" ++ x ++ "</script>"
 
-inlineCodeTag :: String -> String
-inlineCodeTag contents = "<code>" ++ contents ++ "</code>"
+inlineCodeTag :: String -> String -> String
+inlineCodeTag "html" contents = "<code>" ++ contents ++ "</code>"
+inlineCodeTag plat contents = "<code>" ++ contents ++ "</code>"
 
-scriptLinkTag :: String -> String
-scriptLinkTag url = "<script src=\"" ++ url ++ "\"></script>"
+scriptLinkTag :: String -> String -> String
+scriptLinkTag "html" url = "<script src=\"" ++ url ++ "\"></script>"
+scriptLinkTag plat url = "<script src=\"" ++ url ++ "\"></script>"
 
-cssTag :: String -> String
-cssTag url = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" ++ url ++ "\">"
+cssTag :: String -> String -> String
+cssTag "html" url = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" ++ url ++ "\">"
+cssTag plat url = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" ++ url ++ "\">"
 
-liTag :: String -> String
-liTag x = "<li>" ++ x ++ "</li>\n"
+liTag :: String -> String -> String
+liTag "html" x = "<li>" ++ x ++ "</li>\n"
+liTag plat x = "<li>" ++ x ++ "</li>\n"
 
-ulTag :: String -> String
-ulTag x = "<ul>\n" ++ x ++ "</ul>\n"
+-- creates an unordered list in the given language ("html" by default)
+ulTag :: String -> String -> String
+ulTag "html" x = "<ul>\n" ++ x ++ "</ul>\n"
+ulTag plat x = "<ul>\n" ++ x ++ "</ul>\n"
 
-olTag :: String -> String
-olTag x = "<ol>\n" ++ x ++ "</ol>\n"
+olTag :: String -> String -> String
+olTag "html" x = "<ol>\n" ++ x ++ "</ol>\n"
+olTag plat x = "<ol>\n" ++ x ++ "</ol>\n"
 
-hTag :: Int -> String -> String
-hTag x y = "<h" ++ show x ++ ">" ++ y ++ "</h" ++ show x ++ ">\n"
+hTag :: String -> Int -> String -> String
+hTag "html" x y = "<h" ++ show x ++ ">" ++ y ++ "</h" ++ show x ++ ">\n"
+hTag plat x y = "<h" ++ show x ++ ">" ++ y ++ "</h" ++ show x ++ ">\n"
 
-pTag :: String -> String
-pTag x = "<p>" ++ x ++ "</p>\n"
+pTag :: String -> String -> String
+pTag "html" x = "<p>" ++ x ++ "</p>\n"
+pTag plat x = "<p>" ++ x ++ "</p>\n"
  
-commentTag :: String -> String
-commentTag x = "<!-- " ++ x ++ " -->\n"
+commentTag :: String -> String -> String
+commentTag "html" x = "<!-- " ++ x ++ " -->\n"
+commentTag plat x = "<!-- " ++ x ++ " -->\n"
 
-boldTag :: String -> String
-boldTag x = "<b>" ++ x ++ "</b>"
+boldTag :: String -> String -> String
+boldTag "html" x = "<b>" ++ x ++ "</b>"
+boldTag plat x = "<b>" ++ x ++ "</b>"
 
-italicTag :: String -> String
-italicTag x = "<i>" ++ x ++ "</i>"
+italicTag :: String -> String -> String
+italicTag "html" x = "<i>" ++ x ++ "</i>"
+italicTag plat x = "<i>" ++ x ++ "</i>"
 
-linkTag :: String -> String -> String
-linkTag x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
+linkTag :: String -> String -> String -> String
+linkTag "html" x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
+linkTag plat x url = "<a href=\"" ++ url ++ "\">" ++ x ++ "</a>"
 
-imgTag :: String -> String -> String
-imgTag url alt = "<img src=\"" ++ url ++ "\" alt=\"" ++ alt ++ "\">"
+breakline :: String -> String
+breakline "html" = "<br>"
+breakline plat = "<br>"
 
-emptyDivTag :: String -> String
-emptyDivTag id = "<div id=\"" ++ id ++ "\"></div>"
+imgTag :: String -> String -> String -> String
+imgTag "html" url alt = "<img src=\"" ++ url ++ "\" alt=\"" ++ alt ++ "\">"
+imgTag plat url alt = "<img src=\"" ++ url ++ "\" alt=\"" ++ alt ++ "\">"
+
+emptyDivTag :: String -> String -> String
+emptyDivTag "html" id = "<div id=\"" ++ id ++ "\"></div>"
+emptyDivTag plat id = "<div id=\"" ++ id ++ "\"></div>"
 
 -- creates boilerplate html
 baseHtml :: String -> String

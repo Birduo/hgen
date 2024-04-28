@@ -6,144 +6,143 @@ import Debug.Trace (trace)
 import Data.List (isSuffixOf)
 
 -- markdown ::= stmt* eof
-markdown :: Parser [String]
--- markdown = sepEndBy (try expr) newline <* eof
-markdown = manyTill expr eof
+markdown :: String -> Parser [String]
+markdown plat = manyTill (expr plat) eof
 
 -- expr :: list | stmt
-expr :: Parser String
-expr = try list <|> try codeBlock <|> try stmt
+expr :: String -> Parser String
+expr plat = try (list plat) <|> try (codeBlock plat) <|> try (stmt plat)
 
 -- list ::= ul | ol
-list :: Parser String
-list = do
-    contents <- many1 $ try ulItem
-    return $ ulTag $ concat contents
+list :: String -> Parser String
+list plat = do
+    contents <- many1 $ try (ulItem plat)
+    return $ ulTag plat $ concat contents
     <|> do
-    contents <- many1 $ try olItem
-    return $ olTag $ concat contents
+    contents <- many1 $ try (olItem plat)
+    return $ olTag plat $ concat contents
 
 -- ulItem ::= '-' text newline
-ulItem :: Parser String
-ulItem = do
+ulItem :: String -> Parser String
+ulItem plat = do
     char '-'
     spaces
-    contents <- inline
+    contents <- inline plat
     newline
-    return $ liTag contents
+    return $ liTag plat contents
 
 -- olItem ::= digit+ '.' text newline
-olItem :: Parser String
-olItem = do
+olItem :: String -> Parser String
+olItem plat = do
     many1 digit
     char '.'
     spaces
-    contents <- inline
+    contents <- inline plat
     newline
-    return $ liTag contents
+    return $ liTag plat contents
 
 -- codeBlock ::= "```" (text newline)* "```"
-codeBlock :: Parser String
-codeBlock = do
+codeBlock :: String -> Parser String
+codeBlock plat = do
     string "```"
     language <- try $ manyTill anyChar newline <|> return ""
     contents <- manyTill anyChar (try $ string "```")
     return $ case language of
-        "js" -> scriptBlockTag contents
-        "javascript" -> highlightCodeTag "javascript" contents ++ scriptBlockTag contents
-        "" -> codeBlockTag contents
-        x -> highlightCodeTag x contents
+        "js" -> scriptBlockTag plat contents
+        "javascript" -> highlightCodeTag plat "javascript" contents ++ scriptBlockTag plat contents
+        "" -> codeBlockTag plat contents
+        x -> highlightCodeTag plat x contents
 
 -- stmt ::= comment | header | inline | newline
-stmt :: Parser String
-stmt = try comment 
-    <|> try header
-    <|> try emptyDiv
-    <|> try inline
+stmt :: String -> Parser String
+stmt plat = try (comment plat) 
+    <|> try (header plat)
+    <|> try (emptyDiv plat)
+    <|> try (inline plat)
     <|> do 
         newline
-        return "<br>\n" -- if no match, return <br> and consume a newline
+        return $ breakline plat -- if no match, return and consume a newline
 
 -- comment ::= "//" text
-comment :: Parser String
-comment = do
+comment :: String -> Parser String
+comment plat = do
     string "// "
     contents <- manyTill anyChar newline
-    return $ commentTag contents
+    return $ commentTag plat contents
 
 -- header ::= '#'+ text
-header :: Parser String
-header = do
+header :: String -> Parser String
+header plat = do
     hashs <- many1 $ char '#'
     many1 space
     contents <- many1 text
     newline
-    return $ hTag (length hashs) (concat contents)
+    return $ hTag plat (length hashs) (concat contents)
 
 -- emptyDiv ::= "::" id
-emptyDiv :: Parser String
-emptyDiv = do
+emptyDiv :: String -> Parser String
+emptyDiv plat = do
     string "::"
     id <- many1 (noneOf " \n")
-    return $ emptyDivTag id
+    return $ emptyDivTag plat id
 
 
-inline :: Parser String
-inline = try bold
-    <|> try italic
-    <|> try img
-    <|> try link
-    <|> try inlineCode
+inline :: String -> Parser String
+inline plat = try (bold plat)
+    <|> try (italic plat)
+    <|> try (img plat)
+    <|> try (link plat)
+    <|> try (inlineCode plat)
     <|> text
 
-bold :: Parser String
-bold = do
+bold :: String -> Parser String
+bold plat = do
     string "**"
     contents <- manyTill text (try $ string "**")
-    return $ boldTag $ concat contents
+    return $ boldTag plat $ concat contents
 
-italic :: Parser String
-italic = do
+italic :: String -> Parser String
+italic plat = do
     string "*"
     contents <- manyTill text (try $ string "*")
-    return $ italicTag $ concat contents
+    return $ italicTag plat $ concat contents
 
-img :: Parser String
-img = do
+img :: String -> Parser String
+img plat = do
     string "!["
     alt <- manyTill anyChar (try $ string "](")
     url <- manyTill anyChar (try $ string ")")
-    return $ imgTag url alt
+    return $ imgTag plat url alt
 
 -- linkFileType checks the file type of a link (css, js, py, html)
 fileType :: String -> String
-fileType = reverse . takeWhile (/= '.') . reverse
+fileType = reverse. takeWhile (/= '.'). reverse
 
-link :: Parser String
-link = do
+link :: String -> Parser String
+link plat = do
     string "["
     contents <- manyTill anyChar (try $ lookAhead $ string "](")
     string "]("
     url <- manyTill anyChar (try $ string ")")
     return $ case fileType url of
-        "css" -> cssTag url
-        "js" -> linkTag contents url ++ scriptLinkTag url
-        _ -> linkTag contents url
+        "css" -> cssTag plat url
+        "js" -> linkTag plat contents url ++ scriptLinkTag plat url
+        _ -> linkTag plat contents url
 
 -- inlineCode ::= "`" text "`"
-inlineCode :: Parser String
-inlineCode = do
+inlineCode :: String -> Parser String
+inlineCode plat = do
     char '`'
     contents <- manyTill anyChar (try $ char '`')
-    return $ inlineCodeTag contents
+    return $ inlineCodeTag plat contents
 
 -- common text parsing
 text :: Parser String
 text = many1 (noneOf "*[_`\n")
 
 -- convert input string to indent-formatted html
-parseMarkdown :: String -> String
-parseMarkdown input = case parse markdown "Error !" input of
+parseMarkdown :: String -> String -> String
+parseMarkdown input plat = case parse (markdown plat) "Error!" input of
     Left err -> "Parsing error: " ++ show err
     Right html -> concat html
 
@@ -153,14 +152,15 @@ main :: IO ()
 main = do
     args <- getArgs
     let fileName = head args
-    let outputFileName = args !! 1
+    let outputFileName = args!! 1
     file <- readFile fileName
 
-    let html = parseMarkdown $ file ++ "\n" -- append w/ newline just incase
+    let plat = "html" -- or any other platform you want to support
+    let html = parseMarkdown (file ++ "\n") plat
 
     -- Check if a third argument is provided
     if length args > 2 then do
-        let headerFileName = args !! 2
+        let headerFileName = args!! 2
         header <- readFile headerFileName
         writeFile outputFileName $ baseHtmlFile header html
     else
